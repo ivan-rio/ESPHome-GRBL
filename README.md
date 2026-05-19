@@ -216,6 +216,31 @@ To stop jogging:
 - grbl.cancel_jog
 ```
 
+### Hold / Resume
+
+To pause the current motion (hold) or resume it:
+
+```yaml
+- grbl.hold
+```
+
+```yaml
+- grbl.resume
+```
+
+You may create a hold switch to toggle between hold and resume states:
+
+```yaml
+  - platform: template
+    name: Hold
+    icon: "mdi:pause"
+    lambda: return id(grbl_state).state == "hold";
+    turn_on_action:
+      - grbl.hold
+    turn_off_action:
+      - grbl.resume
+```
+
 ### Run Homing Cycle
 
 If you have limit switches set up, you can run the homing cycle:

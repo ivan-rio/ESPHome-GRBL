@@ -117,6 +117,8 @@ GrblSendResetAction = register_grbl_simple_action(ACTION_RESET, "GrblSendResetAc
 GrblReleaseStateAction = register_grbl_simple_action(ACTION_RELEASE_STATE, "GrblReleaseStateAction")
 GrblRunHomingCycleAction = register_grbl_simple_action(ACTION_RUN_HOMING_CYCLE, "GrblRunHomingCycleAction")
 GrblUpdateStatusAction = register_grbl_simple_action(ACTION_UPDATE_STATUS, "GrblUpdateStatusAction")
+GrblHoldAction = register_grbl_simple_action(ACTION_HOLD, "GrblHoldAction")
+GrblResumeAction = register_grbl_simple_action(ACTION_RESUME, "GrblResumeAction")
 
 # grbl.send_command action
 

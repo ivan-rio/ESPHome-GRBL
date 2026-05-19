@@ -45,6 +45,16 @@ template <typename... Ts> class GrblUpdateStatusAction : public Action<Ts...>, p
     void play(Ts... x) override { this->parent_->update_status(); }
 };
 
+template <typename... Ts> class GrblHoldAction : public Action<Ts...>, public Parented<Grbl> {
+  public:
+    void play(Ts... x) override { this->parent_->hold(); }
+};
+
+template <typename... Ts> class GrblResumeAction : public Action<Ts...>, public Parented<Grbl> {
+  public:
+    void play(Ts... x) override { this->parent_->resume(); }
+};
+
 template <typename... Ts> class GrblSendCommandAction : public Action<Ts...>, public Parented<Grbl> {
   public:
     TEMPLATABLE_VALUE(std::string, command)

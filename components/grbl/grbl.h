@@ -89,6 +89,8 @@ class Grbl : public uart::UARTDevice,
     void send_jog_command(float dist_x = 0, float dist_y = 0, float dist_z = 0, int speed = 1000);
     void cancel_jog();
     void send_reset();
+    void hold();
+    void resume();
     void release_state();
     void set_home(bool xy = true, bool z = true, Coords coords = COORDS_G54);
     void run_homing_cycle();

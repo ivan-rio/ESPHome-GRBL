@@ -243,8 +243,10 @@ void Grbl::parse_grbl_response_(const std::string& line) {
             ESP_LOGVV(TAG, "Status part: %s", part.c_str());
             if (start == 1) {
                 // The first part of the status report is the state, e.g. "Idle", "Run", "Hold", etc.
+                size_t len = part.size();
+                if (len > 2 && part[len - 2] == ':') len -= 2; // Ignore substate (e.g. "Idle:0")
                 for (size_t i = 0; i < 9; i++) {
-                    if (part == state_names[i]) {
+                    if (part.compare(0, len, state_names[i]) == 0) {
                         this->status_.state = static_cast<State>(i);
                         break;
                     }
@@ -359,7 +361,7 @@ void Grbl::send_jog_command(float dist_x, float dist_y, float dist_z, int speed)
 
     float dist = std::sqrt(dist_x * dist_x + dist_y * dist_y + dist_z * dist_z);
     int estimated_time = static_cast<int>(dist / speed * 60 * 1000);  // Convert from mm/min to ms
-    this->set_timeout(estimated_time + 200, [this]() { this->update_status(); });  // Request status update after jogging
+    this->set_timeout(estimated_time + 500, [this]() { this->update_status(); });  // Request status update after jogging
 }
 
 void Grbl::send_reset() {
@@ -370,12 +372,24 @@ void Grbl::send_reset() {
 void Grbl::cancel_jog() {
     ESP_LOGD(TAG, "Sending GRBL command: ^U");
     this->write_byte(0x85);  // Send Ctrl-U to cancel jogging in GRBL
-    this->set_timeout(100, [this]() { this->update_status(); });
+    this->set_timeout(500, [this]() { this->update_status(); });
+}
+
+void Grbl::hold() {
+    ESP_LOGD(TAG, "Sending GRBL command: !");
+    this->write_byte('!');  // Send ! to hold GRBL
+    this->set_timeout(500, [this]() { this->update_status(); });
+}
+
+void Grbl::resume() {
+    ESP_LOGD(TAG, "Sending GRBL command: ~");
+    this->write_byte('~');  // Send ~ to resume GRBL
+    this->set_timeout(500, [this]() { this->update_status(); });
 }
 
 void Grbl::release_state() {
     this->send_command("$X");  // GRBL command to release from alarm state, allowing new commands to be accepted
-    this->set_timeout(100, [this]() { this->update_status(); });
+    this->set_timeout(500, [this]() { this->update_status(); });
 }
 
 void Grbl::set_home(bool xy, bool z, Coords coords) {
