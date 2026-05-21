@@ -20,4 +20,4 @@ async def to_code(config):
     parent = await cg.get_variable(config[CONF_GRBL_ID])
     cg.add(var.set_parent(parent))
     cg.add(var.set_setting(config[CONF_ENTITY_PARAM]))
-    cg.add(parent.register_listener(var))
+    cg.add(parent.add_settings_listener(var))

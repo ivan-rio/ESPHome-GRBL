@@ -7,7 +7,7 @@
 namespace esphome {
 namespace grbl {
 
-class GrblSensor : public sensor::Sensor, public Component, public Grbl::Listener {
+class GrblSensor : public sensor::Sensor, public Component, public Grbl::SettingsListener {
  public:
   void set_parent(Grbl *parent) { parent_ = parent; }
   void set_setting(int setting) { setting_ = setting; }

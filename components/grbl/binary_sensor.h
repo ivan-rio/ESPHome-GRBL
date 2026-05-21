@@ -7,7 +7,7 @@
 namespace esphome {
 namespace grbl {
 
-class GrblBinarySensor : public binary_sensor::BinarySensor, public Component, public Grbl::Listener {
+class GrblBinarySensor : public binary_sensor::BinarySensor, public Component, public Grbl::SettingsListener {
  public:
   void set_parent(Grbl *parent) { parent_ = parent; }
   void set_setting(int setting) { setting_ = setting; }

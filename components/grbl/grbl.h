@@ -46,8 +46,7 @@ enum Coords {
     COORDS_G92 = 6,  // G92 coordinates
 };
 
-class Grbl : public uart::UARTDevice,
-    public Component {
+class Grbl : public uart::UARTDevice, public Component {
   public:
     void setup() override;
     void loop() override;
@@ -116,13 +115,21 @@ class Grbl : public uart::UARTDevice,
         this->send_command(buf);
     }
 
-    class Listener {
+    class SettingsListener {
       public:
         virtual void update(int setting, float value) = 0;
-        virtual ~Listener() = default;
+        virtual ~SettingsListener() = default;
     };
 
-    void register_listener(Listener* listener) { this->listeners_.push_back(listener); }
+    void add_settings_listener(SettingsListener* listener) { this->settings_listeners_.push_back(listener); }
+
+    void add_on_alarm_callback(std::function<void(uint8_t)>&& callback) {
+        this->alarm_callback_.add(std::move(callback));
+    }
+
+    void add_on_error_callback(std::function<void(uint8_t)>&& callback) {
+        this->error_callback_.add(std::move(callback));
+    }
 
   protected:
     AsyncServer server_{0};
@@ -188,7 +195,10 @@ class Grbl : public uart::UARTDevice,
     std::string line_buffer_{};
     std::map<int, float> grbl_settings_{};
 
-    std::vector<Listener*> listeners_{};
+    std::vector<SettingsListener*> settings_listeners_{};
+
+    CallbackManager<void(uint8_t)> alarm_callback_;
+    CallbackManager<void(uint8_t)> error_callback_;
 
     void cleanup_();
 

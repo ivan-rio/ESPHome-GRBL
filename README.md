@@ -292,7 +292,24 @@ By default, the component listens for GRBL status reports and updates entities a
 - grbl.update_status
 ```
 
-### Example
+## 🔔 Triggers
+
+You can trigger automations based on GRBL events such as alarms or errors. For example, to trigger an automation when an alarm occurs:
+
+```yaml
+grbl:
+  on_alarm:
+    then:
+      - logger.log:
+          format: "Alarm: %d"
+          args:
+            - code
+```
+
+Right now the components provides `on_alarm` and `on_error` triggers that pass the alarm/error code. You can use these to create automations that react to specific alarms or errors.
+
+
+## 💡 Example
 
 See [`example.yaml`](example.yaml) for a complete example configuration.
 

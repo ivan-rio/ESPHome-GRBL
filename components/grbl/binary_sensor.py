@@ -59,4 +59,4 @@ async def to_code(config):
         await cg.register_component(var, config)
         cg.add(var.set_parent(parent))
         cg.add(var.set_setting(param))
-        cg.add(parent.register_listener(var))
+        cg.add(parent.add_settings_listener(var))

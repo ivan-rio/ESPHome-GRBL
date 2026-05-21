@@ -1,10 +1,11 @@
 from logging import config
 
+from blosc2 import var
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome import automation
 from esphome.components import uart
-from esphome.const import CONF_ID, CONF_PORT, SCHEDULER_DONT_RUN
+from esphome.const import CONF_ID, CONF_ON_PRESS, CONF_PORT, SCHEDULER_DONT_RUN
 
 from .const import *
 
@@ -18,20 +19,28 @@ Grbl = ns.class_('Grbl', cg.Component, uart.UARTDevice)
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(Grbl),
+    cv.GenerateID(CONF_GRBL_ID): cv.use_id(Grbl),
     cv.Optional(CONF_PORT, default=23): cv.port,
     cv.Optional(CONF_ALLOW_COMMANDS_WHEN_CONNECTED, default=False): cv.boolean,
-    cv.GenerateID(CONF_GRBL_ID): cv.use_id(Grbl),
+    cv.Optional(CONF_ON_ALARM): automation.validate_automation(),
+    cv.Optional(CONF_ON_ERROR): automation.validate_automation(),
 }).extend(cv.COMPONENT_SCHEMA).extend(uart.UART_DEVICE_SCHEMA)
 
 
-def to_code(config):
+async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    yield cg.register_component(var, config)
+    await cg.register_component(var, config)
 
     cg.add(var.set_port(config[CONF_PORT]))
     cg.add(var.set_allow_commands_when_connected(config[CONF_ALLOW_COMMANDS_WHEN_CONNECTED]))
 
-    yield uart.register_uart_device(var, config)
+    await uart.register_uart_device(var, config)
+
+    for trigger in (CONF_ON_ALARM, CONF_ON_ERROR):
+        for conf in config.get(trigger, []):
+            await automation.build_callback_automation(
+                var, f"add_{trigger}_callback", [(cg.uint8, "code")], conf
+            )
 
 
 ## Tools
@@ -57,6 +66,7 @@ def float_or_auto(value):
 
 
 class ValidateAxisDependency:
+
     def __init__(self, *param_keys):
         self.param_keys = param_keys
 
@@ -85,7 +95,6 @@ GRBL_COORDS = {
     'G58': GrblCoords.COORDS_G58,
     'G59': GrblCoords.COORDS_G59,
 }
-
 
 ## Actions
 

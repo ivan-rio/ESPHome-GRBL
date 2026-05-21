@@ -42,6 +42,18 @@ uart:
 
 grbl:
   allow_commands_when_connected: true
+  on_alarm:
+    then:
+      - logger.log:
+          format: "Alarm: %d"
+          args:
+            - code
+  on_error:
+    then:
+      - logger.log:
+          format: "Error: %d"
+          args:
+            - code
 
 interval:
   - interval: 5s
