@@ -75,7 +75,7 @@ template <typename... Ts> class GrblJogAction : public Action<Ts...>, public Par
     TEMPLATABLE_VALUE(float, z)
     TEMPLATABLE_VALUE(int, speed)
 
-    void play(Ts... x) override {
+    void play(const Ts&... x) override {
         float dx = this->x_.value(x...);
         float dy = this->y_.value(x...);
         float dz = this->z_.value(x...);
@@ -90,7 +90,7 @@ template <typename... Ts> class GrblSetHomeAction : public Action<Ts...>, public
     TEMPLATABLE_VALUE(bool, z)
     TEMPLATABLE_VALUE(Coords, coords)
 
-    void play(Ts... x) override {
+    void play(const Ts&... x) override {
         bool xy = this->xy_.value(x...);
         bool z = this->z_.value(x...);
         Coords coords = this->coords_.value(x...);
@@ -107,13 +107,13 @@ template <typename... Ts> class GrblProbeZAction : public Action<Ts...>, public 
     TEMPLATABLE_VALUE(float, retract)
     TEMPLATABLE_VALUE(Coords, coords)
 
-    void play(Ts... x) override {
-        float distance = this->distance_.value_or(x...,-1.);
-        float seek_rate = this->seek_rate_.value_or(x..., 100.);
-        float feed_rate = this->feed_rate_.value_or(x..., 10.);
-        float offset = this->offset_.value_or(x..., 0.);
-        float retract = this->retract_.value_or(x..., 5.);
-        Coords coords = this->coords_.value_or(x..., Coords::COORDS_G54);
+    void play(const Ts&... x) override {
+        float distance = this->distance_.value(x...);
+        float seek_rate = this->seek_rate_.value(x...);
+        float feed_rate = this->feed_rate_.value(x...);
+        float offset = this->offset_.value(x...);
+        float retract = this->retract_.value(x...);
+        Coords coords = this->coords_.value(x...);
         this->parent_->probe_z(distance, seek_rate, feed_rate, offset, retract, coords);
     }
 };
