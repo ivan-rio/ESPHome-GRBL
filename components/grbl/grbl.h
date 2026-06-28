@@ -123,13 +123,9 @@ class Grbl : public uart::UARTDevice, public Component {
 
     void add_settings_listener(SettingsListener* listener) { this->settings_listeners_.push_back(listener); }
 
-    void add_on_alarm_callback(std::function<void(uint8_t)>&& callback) {
-        this->alarm_callback_.add(std::move(callback));
-    }
+    void add_on_alarm_callback(std::function<void(uint8_t)>&& callback) { this->alarm_callback_.add(std::move(callback)); }
 
-    void add_on_error_callback(std::function<void(uint8_t)>&& callback) {
-        this->error_callback_.add(std::move(callback));
-    }
+    void add_on_error_callback(std::function<void(uint8_t)>&& callback) { this->error_callback_.add(std::move(callback)); }
 
   protected:
     AsyncServer server_{0};
@@ -149,7 +145,10 @@ class Grbl : public uart::UARTDevice, public Component {
         AsyncClient* tcp_client{nullptr};
         std::string identifier{};
         bool connected{true};
+
+        bool reset_flag{false};
     };
+
     std::vector<uint8_t> recv_buf_{};
     uint16_t port_;
     binary_sensor::BinarySensor* connection_sensor_{nullptr};

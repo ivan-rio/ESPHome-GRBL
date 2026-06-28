@@ -33,24 +33,23 @@ Grbl::Client::Client(AsyncClient* client, std::vector<uint8_t>& recv_buf)
     : tcp_client{client}, identifier{this->format_ip()}, connected{true} {
     ESP_LOGD(TAG, "New client connected from %s", this->identifier.c_str());
 
+    this->tcp_client->setAckTimeout(30000);  // Set ACK timeout to 30 seconds
+
     this->tcp_client->onError([this](void* h, AsyncClient* client, int8_t error) {
         ESP_LOGE(TAG, "Client %s error: %d", this->identifier.c_str(), error);
         this->connected = false;
-        delete this->tcp_client;
-        this->tcp_client = nullptr;
+        this->reset_flag = true;
     });
     this->tcp_client->onDisconnect([this](void* h, AsyncClient* client) {
         ESP_LOGD(TAG, "Client %s disconnected", this->identifier.c_str());
         this->connected = false;
-        delete this->tcp_client;
-        this->tcp_client = nullptr;
+        this->reset_flag = true;
     });
 
     this->tcp_client->onTimeout([this](void* h, AsyncClient* client, uint32_t time) {
-        ESP_LOGW(TAG, "Client %s timeout", this->identifier.c_str());
+        ESP_LOGW(TAG, "Client %s timeout (%u ms)", this->identifier.c_str(), time);
         this->connected = false;
-        delete this->tcp_client;
-        this->tcp_client = nullptr;
+        this->reset_flag = true;
     });
 
     this->tcp_client->onData(
@@ -154,7 +153,9 @@ void Grbl::update_status_sensors_() {
 }
 
 void Grbl::cleanup_() {
-    if (this->client_ && this->client_->tcp_client == nullptr) this->client_.reset();
+    if (this->client_ && (this->client_->reset_flag || this->client_->tcp_client == nullptr)) {
+        this->client_.reset();
+    }
 }
 
 void Grbl::serial_read_() {
