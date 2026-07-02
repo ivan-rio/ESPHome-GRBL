@@ -1,6 +1,5 @@
 from logging import config
 
-from blosc2 import var
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome import automation
