@@ -10,7 +10,7 @@ esp32:
     type: esp-idf
 
 external_components:
-  - source: github://macdems/ESPHome-GRBL
+  - source: github://ivan-rio/ESPHome-GRBL
     components: [grbl]
 
 # Enable logging
